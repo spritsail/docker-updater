@@ -51,15 +51,14 @@ func (d *dockerfile) Find(needle string) (vars []*parser.Node) {
 		// ARGs are easy.. NAME="value"
 		case "arg":
 
-			arg := node.Next.Value
-			split := strings.SplitN(arg, "=", 2)
-			if len(split) < 2 {
-				// ARG contains no value. Keep looking
+			name, value := SplitArg(node)
+			if value == "" {
+				// arg contains no value. keep looking
 				continue
 			}
 
 			// Found the ARG we're looking for. Return it
-			if split[0] == needle {
+			if name == needle {
 				vars = append(vars, node)
 				continue
 			}
