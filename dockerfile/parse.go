@@ -80,13 +80,33 @@ func (d *dockerfile) Update(node *parser.Node, value string) (err error) {
 	}
 }
 
-func (d *dockerfile) UpdateArg(name string, value string) (err error) {
+func (d *dockerfile) UpdateArgIf(name, value string, pred func(string) bool) (err error) {
 	args := d.Find(name)
 	if len(args) < 1 {
 		return nil
 	}
 	for _, arg := range args {
-		if err = d.Update(arg, value); err != nil {
+		_, oldVal := SplitArg(arg)
+		// Call the predicate to check if we should update the value
+		if pred(oldVal) {
+			// Update the Dockerfile
+			err = d.Update(arg, value)
+			if err != nil {
+				return
+			}
+		}
+	}
+	return nil
+}
+
+func (d *dockerfile) UpdateArg(name, value string) (err error) {
+	args := d.Find(name)
+	if len(args) < 1 {
+		return nil
+	}
+	for _, arg := range args {
+		err = d.Update(arg, value)
+		if err != nil {
 			return
 		}
 	}
