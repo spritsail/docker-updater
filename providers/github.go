@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-func trimV(release github.RepositoryRelease) (version string) {
-	return strings.Trim(*release.TagName, "v")
-}
-
 func GetReleases(repo, authToken string, usePrereleases bool) (release *github.RepositoryRelease, err error) {
 	repoSplit := strings.Split(repo, "/")
 	if len(repoSplit) != 2 {
@@ -43,6 +39,20 @@ func GetReleases(repo, authToken string, usePrereleases bool) (release *github.R
 			err = errors.New(fmt.Sprintf("no releases found for %s: %s", repo, err))
 			return
 		}
+	}
+	return
+}
+
+func GetReleaseTag(repo, authToken string, usePrereleases, stripV bool) (tag string, err error) {
+	release, err := GetReleases(repo, authToken, usePrereleases)
+	if err != nil {
+		return
+	}
+
+	if stripV {
+		tag = strings.Trim(*release.TagName, "v")
+	} else {
+		tag = *release.TagName
 	}
 	return
 }
