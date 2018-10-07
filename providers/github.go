@@ -1,4 +1,4 @@
-package dockerfile_updater
+package github
 
 import (
 	"context"
